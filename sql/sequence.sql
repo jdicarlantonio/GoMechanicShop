@@ -1,3 +1,4 @@
+-- This is probably not the best way to handle unique IDs, but the data provided used regular integers 
 CREATE SEQUENCE idSeq START WITH 500;
 ALTER TABLE customer ALTER column id SET DEFAULT netxval('idSet');
 

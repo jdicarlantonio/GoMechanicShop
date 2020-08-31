@@ -17,6 +17,8 @@ func main() {
 	http.HandleFunc("/addCustomer", api.AddCustomer)
 	http.HandleFunc("/addMechanic", api.AddMechanic)
 	http.HandleFunc("/addCar", api.AddCar)
+	http.HandleFunc("/addServiceRequest", api.AddServiceRequest)
+	http.HandleFunc("/closeServiceRequest", api.CloseServiceRequest)
 
 	log.Fatal(http.ListenAndServe("localhost:8080", nil))
 }

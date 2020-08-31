@@ -7,6 +7,7 @@ import (
 	"database/sql"
 
 	"GoMechanicShop/storage"
+	"GoMechanicShop/util"
 )
 
 // holds information on the car and its owner
@@ -25,7 +26,7 @@ func AddCar(w http.ResponseWriter, r *http.Request) {
 
 	var carOwnerRelation CarOwnerRelation
 	err := json.NewDecoder(r.Body).Decode(&carOwnerRelation)
-	Check(err, w)
+	util.Check(err)
 	log.Println(carOwnerRelation)
 
 	// check if customer exists
@@ -35,26 +36,21 @@ func AddCar(w http.ResponseWriter, r *http.Request) {
 	var customerId int
 	err = row.Scan(&customerId)
 	if err == sql.ErrNoRows {
-		log.Print("create customer")
+		log.Println("create customer")
+		return
 	} else {
-		Check(err, w)
+		util.Check(err)
 	}
 
 	carUpdate := `INSERT INTO car (vin, make, model, year) VALUES ($1, $2, $3, $4)`
 	_, err = db.Exec(carUpdate, carOwnerRelation.Vin, carOwnerRelation.Make, carOwnerRelation.Model, carOwnerRelation.Year)
-	Check(err, w)
+	util.Check(err)
 
 	// create the owner relation
 	ownerUpdate := `INSERT INTO owns (customer_id, car_vin) VALUES ($1, $2)`
 	_, err = db.Exec(ownerUpdate, customerId, carOwnerRelation.Vin)
-	Check(err, w)
+	util.Check(err)
 
 	w.WriteHeader(http.StatusOK)
 	defer db.Close()
-}
-
-func Check(err error, w http.ResponseWriter) {
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-	}
 }
