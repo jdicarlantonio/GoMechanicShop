@@ -2,6 +2,7 @@ package util
 
 import (
 	"log"
+	"net/http"
 	"database/sql"
 )
 
@@ -18,6 +19,14 @@ func QueryReturn(query string, db *sql.DB, arg ...interface{}) (bool, string) {
 		Check(err)
 		return true, rowReturned
 	}
+}
+
+// quick and dirty CORS enable
+// this is only for the testing stage and should be handled differently in production
+func EnableCors(w *http.ResponseWriter, r *http.Request) {
+	(*w).Header().Set("Access-Control-Allow-Origin", "*")
+    (*w).Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
+    (*w).Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
 }
 
 // print errors

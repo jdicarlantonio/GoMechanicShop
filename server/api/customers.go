@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 
 	"GoMechanicShop/storage"
+	"GoMechanicShop/util"
 )
 
 type Customer struct {
@@ -17,6 +18,10 @@ type Customer struct {
 
 func AddCustomer(w http.ResponseWriter, r *http.Request) {
 	db := storage.ConnectToDB()
+	util.EnableCors(&w, r)
+	if (*r).Method == "OPTIONS" {
+		return
+	}
 
 	var customer Customer
 	
