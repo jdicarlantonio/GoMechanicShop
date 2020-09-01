@@ -1,11 +1,11 @@
 package api
 
 import (
+	"fmt"
 	"log"
 	"time"
 	"net/http"
 	"encoding/json"
-//	"database/sql"
 
 	"GoMechanicShop/storage"
 	"GoMechanicShop/util"
@@ -25,6 +25,15 @@ type ClosedRequest struct {
 	MechanicId int `json:"mid"`
 	Comment string `json:"comment"`
 	Bill int `json:"bill"`
+}
+
+type OpenServiceRequest struct {
+	RequestId int `json:"rid"`
+	CustomerId int `json:"customer_id"`
+	CarVin string `json:"car_vin"`
+	Date string `json:"date"`
+	Odometer int `json:"odometer"`
+	Complaint string `json:"complain"`
 }
 
 func AddServiceRequest(w http.ResponseWriter, r *http.Request) {
@@ -106,5 +115,43 @@ func CloseServiceRequest(w http.ResponseWriter, r *http.Request) {
 		closedRequest.Bill)
 
 	w.WriteHeader(http.StatusOK)
+	defer db.Close()
+}
+
+type Timeline struct {
+	StartDate string `json:"startDate"`
+	EndDate string `json:"endDate"`
+}
+
+func GetOpenServiceRequests(w http.ResponseWriter, r *http.Request) {
+	db := storage.ConnectToDB()
+
+	openServiceRequestsQuery := `
+		SELECT * FROM service_request 
+		WHERE rid NOT IN (SELECT rid FROM closed_request);`
+
+	rows, err := db.Query(openServiceRequestsQuery)
+	util.Check(err)
+	defer rows.Close()
+
+	var openServiceRequests []OpenServiceRequest
+	for rows.Next() {
+		request := OpenServiceRequest{}
+		err = rows.Scan(
+			&request.RequestId,
+			&request.CustomerId,
+			&request.CarVin,
+			&request.Date,
+			&request.Odometer,
+			&request.Complaint,
+		)
+		util.Check(err)
+		openServiceRequests = append(openServiceRequests, request)
+	}
+
+	out, err := json.Marshal(openServiceRequests)
+	util.Check(err)
+
+	fmt.Fprintf(w, string(out))
 	defer db.Close()
 }
