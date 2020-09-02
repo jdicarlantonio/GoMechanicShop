@@ -15,7 +15,7 @@ type CarOwnerRelation struct {
 	Vin string `json:"vin"`
 	Make string `json:"make"`
 	Model string `json:"model"`
-	Year int `json:"year"`
+	Year string `json:"year"`
 	OwnerFirstName string `json:"fname"`
 	OwnerLastName string `json:"lname"`
 	OwnerPhone string `json:"phone"`
@@ -23,11 +23,14 @@ type CarOwnerRelation struct {
 
 func AddCar(w http.ResponseWriter, r *http.Request) {
 	db := storage.ConnectToDB();
+	util.EnableCors(&w, r)
+	if (*r).Method == "OPTIONS" {
+		return
+	}
 
 	var carOwnerRelation CarOwnerRelation
 	err := json.NewDecoder(r.Body).Decode(&carOwnerRelation)
 	util.Check(err)
-	log.Println(carOwnerRelation)
 
 	// check if customer exists
 	customerExistsQuery := `SELECT id FROM customer WHERE fname = $1 AND lname = $2 AND phone = $3`
@@ -36,11 +39,15 @@ func AddCar(w http.ResponseWriter, r *http.Request) {
 	var customerId int
 	err = row.Scan(&customerId)
 	if err == sql.ErrNoRows {
-		log.Println("create customer")
+		w.WriteHeader(http.StatusNoContent)
+
+		defer db.Close()
 		return
 	} else {
 		util.Check(err)
 	}
+
+	log.Println(carOwnerRelation)
 
 	carUpdate := `INSERT INTO car (vin, make, model, year) VALUES ($1, $2, $3, $4)`
 	_, err = db.Exec(carUpdate, carOwnerRelation.Vin, carOwnerRelation.Make, carOwnerRelation.Model, carOwnerRelation.Year)

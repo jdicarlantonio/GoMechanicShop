@@ -32,8 +32,8 @@ const AddCustomer = () => {
 
     return (
         <Fragment>
-            <h1 className="text-center mt-5">Customer</h1>
-            <form className="d-flex mt-5" onSubmit={onSubmitForm}>
+            <h1 className="text-center mt-5">Customer Information</h1>
+            <form className="mt-4" onSubmit={onSubmitForm}>
                 <input 
                     type="text"
                     placeholder="First Name" 

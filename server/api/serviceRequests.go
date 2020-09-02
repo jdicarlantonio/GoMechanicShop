@@ -92,13 +92,13 @@ func CloseServiceRequest(w http.ResponseWriter, r *http.Request) {
 	ridExists := `SELECT rid FROM service_request WHERE rid = $1`
 	exists, _ := util.QueryReturn(ridExists, db, closedRequest.RequestId)
 	if !exists {
-		log.Println("request doesn't exists")
+		fmt.Fprintf(w, "Request does not exist in database")
 	}
 
 	midExists := `SELECT id FROM mechanic WHERE id = $1`
 	exists, _ = util.QueryReturn(midExists, db, closedRequest.MechanicId)
 	if !exists {
-		log.Println("mechanic doesn't exists")
+		fmt.Fprintf(w, "Employee does not exist in database")
 	}
 
 	closeServiceRequest := `
@@ -125,6 +125,10 @@ type Timeline struct {
 
 func GetOpenServiceRequests(w http.ResponseWriter, r *http.Request) {
 	db := storage.ConnectToDB()
+	util.EnableCors(&w, r)
+	if (*r).Method == "OPTIONS" {
+		return
+	}
 
 	openServiceRequestsQuery := `
 		SELECT * FROM service_request 

@@ -4,6 +4,8 @@ import './App.css';
 
 import AddCustomer from './components/AddCustomer';
 import AddMechanic from './components/AddMechanic';
+import AddCar from './components/AddCar';
+import OpenServiceRequests from './components/OpenServiceRequests';
 
 function App() {
   return (
@@ -22,6 +24,12 @@ function App() {
                 <li>
                   <Link to="/addMechanic">Add Mechanic</Link>
                 </li>
+                <li>
+                  <Link to="/addCar">Add Car</Link>
+                </li>
+                <li>
+                  <Link to="/getOpenServiceRequests">Get Open Service Requests</Link>
+                </li>
               </ul>
             </nav>
             <div className="container">
@@ -31,6 +39,12 @@ function App() {
                 </Route>
                 <Route path="/addMechanic">
                   <AddMechanic />
+                </Route>
+                <Route path="/addCar">
+                  <AddCar />
+                </Route>
+                <Route path="/getOpenServiceRequests">
+                  <OpenServiceRequests />
                 </Route>
               </Switch>
             </div>
