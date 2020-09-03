@@ -16,15 +16,15 @@ type ServiceRequest struct {
 	CustomerLastName string `json:"lname"`
 	CustomerPhone string `json:"phone"`
 	CarVin string `json:"vin"`
-	Odometer int `json:"odometer"`
+	Odometer string `json:"odometer"`
 	Complaint string `json:"complaint"`
 }
 
 type ClosedRequest struct {
-	RequestId int `json:"rid"`
-	MechanicId int `json:"mid"`
+	RequestId string `json:"rid"`
+	MechanicId string `json:"mid"`
 	Comment string `json:"comment"`
-	Bill int `json:"bill"`
+	Bill string `json:"bill"`
 }
 
 type OpenServiceRequest struct {
@@ -38,6 +38,10 @@ type OpenServiceRequest struct {
 
 func AddServiceRequest(w http.ResponseWriter, r *http.Request) {
 	db := storage.ConnectToDB();
+	util.EnableCors(&w, r)
+	if (*r).Method == "OPTIONS" {
+		return
+	}
 
 	var serviceRequest ServiceRequest
 	err := json.NewDecoder(r.Body).Decode(&serviceRequest)
@@ -83,6 +87,10 @@ func AddServiceRequest(w http.ResponseWriter, r *http.Request) {
 
 func CloseServiceRequest(w http.ResponseWriter, r *http.Request) {
 	db := storage.ConnectToDB()
+	util.EnableCors(&w, r)
+	if (*r).Method == "OPTIONS" {
+		return
+	}
 
 	var closedRequest ClosedRequest
 	err := json.NewDecoder(r.Body).Decode(&closedRequest)
@@ -93,12 +101,14 @@ func CloseServiceRequest(w http.ResponseWriter, r *http.Request) {
 	exists, _ := util.QueryReturn(ridExists, db, closedRequest.RequestId)
 	if !exists {
 		fmt.Fprintf(w, "Request does not exist in database")
+		return
 	}
 
 	midExists := `SELECT id FROM mechanic WHERE id = $1`
 	exists, _ = util.QueryReturn(midExists, db, closedRequest.MechanicId)
 	if !exists {
 		fmt.Fprintf(w, "Employee does not exist in database")
+		return
 	}
 
 	closeServiceRequest := `

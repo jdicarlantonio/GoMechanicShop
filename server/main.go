@@ -14,6 +14,7 @@ func main() {
 	http.HandleFunc("/addServiceRequest", api.AddServiceRequest)
 	http.HandleFunc("/closeServiceRequest", api.CloseServiceRequest)
 	http.HandleFunc("/getOpenServiceRequests", api.GetOpenServiceRequests)
+	http.HandleFunc("/removeCustomer", api.RemoveCustomer)
 
 	log.Fatal(http.ListenAndServe("localhost:8080", nil))
 }

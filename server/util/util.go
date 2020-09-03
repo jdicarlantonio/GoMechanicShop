@@ -8,6 +8,7 @@ import (
 
 // checks if the query returned a row, returns true if so, false if not
 // returns the row of the query if it exists as a string
+// only use this if you're expecting only one row to be returned by the query
 func QueryReturn(query string, db *sql.DB, arg ...interface{}) (bool, string) {
 	row := db.QueryRow(query, arg...)
 
@@ -19,6 +20,29 @@ func QueryReturn(query string, db *sql.DB, arg ...interface{}) (bool, string) {
 		Check(err)
 		return true, rowReturned
 	}
+}
+
+// same as above but returns multiple rows
+func QueryReturnRows(query string, db *sql.DB, arg ...interface{}) (bool, []string) {
+	rows, err := db.Query(query, arg...)
+	if err == sql.ErrNoRows {
+		return false, []string{}
+	} else {
+		Check(err)
+	}
+
+	var items []string
+	for rows.Next() {
+		var currentItem string
+		err := rows.Scan(&currentItem)
+		if err != nil {
+			Check(err)
+		}
+
+		items = append(items, currentItem)
+	}
+
+	return true, items
 }
 
 // quick and dirty CORS enable
