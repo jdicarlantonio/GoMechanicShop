@@ -8,6 +8,7 @@ import AddCar from './components/AddCar';
 import OpenServiceRequests from './components/OpenServiceRequests';
 import CreateServiceRequest from './components/CreateServiceRequest';
 import CloseServiceRequest from './components/CloseServiceRequest';
+import Customers from './components/GetCustomers'
 
 function App() {
   return (
@@ -22,6 +23,9 @@ function App() {
                 </li>
                 <li>
                   <Link to="/addCustomer">Add Customer</Link>
+                </li>
+                <li>
+                  <Link to="/findCustomer">Find Customer</Link>
                 </li>
                 <li>
                   <Link to="/addMechanic">Add Mechanic</Link>
@@ -44,6 +48,9 @@ function App() {
               <Switch>
                 <Route path="/addCustomer">
                   <AddCustomer />
+                </Route>
+                <Route path="/findCustomer">
+                  <Customers />
                 </Route>
                 <Route path="/addMechanic">
                   <AddMechanic />

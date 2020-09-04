@@ -22,7 +22,7 @@ const AddMechanic = () => {
             });
             
             console.log(response);
-            window.location = "/"
+            window.location = "/addMechanic"
         } catch (error) {
             console.error(error.message);
         }

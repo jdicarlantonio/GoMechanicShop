@@ -30,12 +30,13 @@ const AddCar = () => {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(body)
             });
+            const jsonData = await response.json();
 
-            if(response.status === 204) {
-                window.alert("Customer does not exist in database.\nPlease add customer to database.");
-            }
+            if(jsonData.hasOwnProperty('Message')) {
+                window.alert(jsonData.Message);
+            } 
 
-            window.location = "/";
+            window.location = "/addCar";
         } catch(error) {
             console.error(error.message);
         }

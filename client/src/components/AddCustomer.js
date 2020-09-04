@@ -24,7 +24,7 @@ const AddCustomer = () => {
             });
 
             console.log(response);
-            window.location = "/";
+            window.location = "/addCustomer";
         } catch (error) {
             console.error(error.message);
         }

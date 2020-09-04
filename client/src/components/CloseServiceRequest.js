@@ -22,9 +22,15 @@ const CloseServiceRequest = () => {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(body)
             });
+            const jsonData = await response.json();
 
-            console.log(response);
-            window.location = "/";
+            if(jsonData.hasOwnProperty('Message')) {
+                window.alert(jsonData.Message);
+            } else {
+                console.log(response);
+                window.location = "/";
+            }
+
         } catch (error) {
             console.log(error.message)
         }

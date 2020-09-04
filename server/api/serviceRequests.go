@@ -43,6 +43,8 @@ func AddServiceRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	var invalidMessage util.Message
+
 	var serviceRequest ServiceRequest
 	err := json.NewDecoder(r.Body).Decode(&serviceRequest)
 	util.Check(err)
@@ -56,14 +58,22 @@ func AddServiceRequest(w http.ResponseWriter, r *http.Request) {
 		serviceRequest.CustomerLastName, 
 		serviceRequest.CustomerPhone)
 	if !exists {
-		log.Println("create customer")
+		invalidMessage.Message = "Customer does not exist in database"
+		out, err := json.Marshal(invalidMessage)
+		util.Check(err)
+
+		fmt.Fprintf(w, string(out))		
 		return
 	}
 
 	carQuery := `SELECT vin FROM car WHERE vin = $1`
 	exists, _ = util.QueryReturn(carQuery, db, serviceRequest.CarVin)
 	if !exists {
-		log.Println("create car")
+		invalidMessage.Message = "Car does not exist in database"
+		out, err := json.Marshal(invalidMessage)
+		util.Check(err)
+
+		fmt.Fprintf(w, string(out))
 		return
 	}
 
@@ -91,6 +101,8 @@ func CloseServiceRequest(w http.ResponseWriter, r *http.Request) {
 	if (*r).Method == "OPTIONS" {
 		return
 	}
+	
+	var invalidMessage util.Message
 
 	var closedRequest ClosedRequest
 	err := json.NewDecoder(r.Body).Decode(&closedRequest)
@@ -100,14 +112,22 @@ func CloseServiceRequest(w http.ResponseWriter, r *http.Request) {
 	ridExists := `SELECT rid FROM service_request WHERE rid = $1`
 	exists, _ := util.QueryReturn(ridExists, db, closedRequest.RequestId)
 	if !exists {
-		fmt.Fprintf(w, "Request does not exist in database")
+		invalidMessage.Message = "Request does not exist in database"
+		out, err := json.Marshal(invalidMessage)
+		util.Check(err)
+
+		fmt.Fprintf(w, string(out))
 		return
 	}
 
 	midExists := `SELECT id FROM mechanic WHERE id = $1`
 	exists, _ = util.QueryReturn(midExists, db, closedRequest.MechanicId)
 	if !exists {
-		fmt.Fprintf(w, "Employee does not exist in database")
+		invalidMessage.Message = "Employee does not exist in database"
+		out, err := json.Marshal(invalidMessage)
+		util.Check(err)
+
+		fmt.Fprintf(w, string(out))
 		return
 	}
 
@@ -162,6 +182,18 @@ func GetOpenServiceRequests(w http.ResponseWriter, r *http.Request) {
 		util.Check(err)
 		openServiceRequests = append(openServiceRequests, request)
 	}
+
+	if len(openServiceRequests) < 1 {
+		var invalidMessage util.Message
+		invalidMessage.Message = "No service requests exist in database"
+
+		out, err := json.Marshal(invalidMessage)
+		util.Check(err)
+
+		fmt.Fprintf(w, string(out))
+		return
+	}
+
 
 	out, err := json.Marshal(openServiceRequests)
 	util.Check(err)

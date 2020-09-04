@@ -6,6 +6,11 @@ import (
 	"database/sql"
 )
 
+// struct to send custom messages to front
+type Message struct {
+	Message string
+}
+
 // checks if the query returned a row, returns true if so, false if not
 // returns the row of the query if it exists as a string
 // only use this if you're expecting only one row to be returned by the query
@@ -23,21 +28,21 @@ func QueryReturn(query string, db *sql.DB, arg ...interface{}) (bool, string) {
 }
 
 // same as above but returns multiple rows
+// make sure you are only expecting one column to be returned
 func QueryReturnRows(query string, db *sql.DB, arg ...interface{}) (bool, []string) {
 	rows, err := db.Query(query, arg...)
-	if err == sql.ErrNoRows {
+	Check(err)
+	defer rows.Close()
+
+	if !rows.Next() {
 		return false, []string{}
-	} else {
-		Check(err)
 	}
 
 	var items []string
 	for rows.Next() {
 		var currentItem string
 		err := rows.Scan(&currentItem)
-		if err != nil {
-			Check(err)
-		}
+		Check(err)
 
 		items = append(items, currentItem)
 	}

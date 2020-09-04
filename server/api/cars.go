@@ -1,6 +1,7 @@
 package api
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"encoding/json"
@@ -28,6 +29,8 @@ func AddCar(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	var invalidMessage util.Message
+
 	var carOwnerRelation CarOwnerRelation
 	err := json.NewDecoder(r.Body).Decode(&carOwnerRelation)
 	util.Check(err)
@@ -39,9 +42,11 @@ func AddCar(w http.ResponseWriter, r *http.Request) {
 	var customerId int
 	err = row.Scan(&customerId)
 	if err == sql.ErrNoRows {
-		w.WriteHeader(http.StatusNoContent)
+		invalidMessage.Message = "Customer does not exist in database"
+		out, err := json.Marshal(invalidMessage)
+		util.Check(err)
 
-		defer db.Close()
+		fmt.Fprintf(w, string(out))
 		return
 	} else {
 		util.Check(err)

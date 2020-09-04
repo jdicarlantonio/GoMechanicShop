@@ -2,14 +2,19 @@ import React, { Fragment, useEffect, useState } from 'react';
 
 const OpenServiceRequests = () => {
     const [openServiceRequests, setOpenServiceRequests] = useState([]);
+    const [message, setMessage] = useState("");
 
     const getOpenServiceRequests = async () => {
         try {
             const response = await fetch("http://localhost:8080/getOpenServiceRequests");
             const jsonData = await response.json();
 
-            console.log(jsonData);
-            setOpenServiceRequests(jsonData)
+            if(jsonData.hasOwnProperty('Message')) {
+                setMessage(jsonData.Message);
+            } else {
+                console.log(jsonData);
+                setOpenServiceRequests(jsonData)
+            }
         } catch (error) {
             console.log(error.message);
         }
@@ -48,6 +53,7 @@ const OpenServiceRequests = () => {
                     }
                 </tbody>
             </table>
+            <h5 className="mt-5 text-center">{message}</h5>
         </Fragment>
     );
 }
