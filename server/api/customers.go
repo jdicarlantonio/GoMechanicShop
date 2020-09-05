@@ -97,7 +97,6 @@ func GetCustomersByLastName(w http.ResponseWriter, r *http.Request) {
 	defer db.Close()
 }
 
-/*
 func RemoveCustomer(w http.ResponseWriter, r *http.Request) {
 	db := storage.ConnectToDB()
 	util.EnableCors(&w, r)
@@ -111,21 +110,31 @@ func RemoveCustomer(w http.ResponseWriter, r *http.Request) {
 	err := json.NewDecoder(r.Body).Decode(&customer)
 	util.Check(err)
 
-	// get the ID of the customer
-	customerIDQuery := `
-		SELECT id FROM customer 
-		WHERE fname = $1 AND lname = $2 AND phone = $3`
-	exists, customerID := util.QueryReturn(customerIDQuery, db, customer.Fname, customer.Lname, customer.Phone)
+	// get all the car vins owned by the customer
+	vinQuery := `SELECT car_vin FROM owns WHERE customer_id = $1`
+	exists, vinList := util.QueryReturnRows(vinQuery, db, customer.Id)
 	if !exists {
-		invalidMessage.Message = "Customer does not exist in database"
+		invalidMessage.Message = "ID does not exist in database"
+
 		out, err := json.Marshal(invalidMessage)
 		util.Check(err)
 
 		fmt.Fprintf(w, string(out))
 		return
 	}
-	
+
+	// remove customer
+	deleteCustomer := `DELETE FROM customer WHERE id = $1`
+	_, err = db.Exec(deleteCustomer, customer.Id)
+	util.Check(err)
+
+	// remove all of the customers cars
+	deleteCars := `DELETE FROM car WHERE vin = $1`
+	for _, vin := range vinList {
+		_, err := db.Exec(deleteCars, vin)
+		util.Check(err)
+	}
+
 	w.WriteHeader(http.StatusOK)
 	defer db.Close()
 }
-*/

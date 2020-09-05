@@ -34,10 +34,6 @@ func QueryReturnRows(query string, db *sql.DB, arg ...interface{}) (bool, []stri
 	Check(err)
 	defer rows.Close()
 
-	if !rows.Next() {
-		return false, []string{}
-	}
-
 	var items []string
 	for rows.Next() {
 		var currentItem string
@@ -45,6 +41,10 @@ func QueryReturnRows(query string, db *sql.DB, arg ...interface{}) (bool, []stri
 		Check(err)
 
 		items = append(items, currentItem)
+	}
+
+	if len(items) < 1 {
+		return false, []string{}
 	}
 
 	return true, items
